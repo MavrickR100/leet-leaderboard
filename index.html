@@ -1,0 +1,676 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode Friends Dashboard</title>
+    <style>
+        :root {
+            --leetcode-black: #1a1a1a;
+            --leetcode-gray: #2d2d2d;
+            --leetcode-green: #00b8a3;
+            --leetcode-yellow: #ffc01e;
+            --leetcode-red: #ff375f;
+            --leetcode-text: rgba(239, 242, 246, 0.75);
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --card-hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--leetcode-black);
+            color: var(--leetcode-text);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.5;
+            min-height: 100vh;
+            background: linear-gradient(145deg, var(--leetcode-black), #242424);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 20px;
+        }
+
+        .header h1 {
+            color: #fff;
+            margin-bottom: 10px;
+            font-size: 2.8em;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #fff;
+            text-shadow: none;
+            position: relative;
+            padding-bottom: 15px;
+            text-transform: uppercase;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .header h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background: #fff;
+            border-radius: 2px;
+            opacity: 0.3;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            padding: 20px 10px;
+            max-width: 1400px;
+            margin: 0 auto;
+            animation: fadeIn 0.5s ease-out;
+            align-items: start;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 640px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                padding: 10px;
+            }
+        }
+
+        @media (min-width: 641px) and (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .dashboard {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .profile-card {
+            background-color: var(--leetcode-gray);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            overflow: visible;
+            background: linear-gradient(135deg, rgba(45, 45, 45, 0.8), rgba(45, 45, 45, 0.6));
+        }
+
+        .profile-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--card-hover-shadow);
+            border-color: rgba(0, 184, 163, 0.3);
+            background: linear-gradient(135deg, rgba(45, 45, 45, 0.95), rgba(45, 45, 45, 0.75));
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            gap: 12px;
+        }
+
+        .profile-header h2 {
+            margin: 0;
+            color: #fff;
+            font-size: 1.35em;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            flex-grow: 1;
+            word-break: break-word;
+        }
+
+        .profile-header a {
+            text-decoration: none;
+            color: inherit;
+            transition: color 0.3s ease;
+        }
+
+        .profile-header a:hover {
+            color: var(--leetcode-green);
+        }
+
+        .rank-badge {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ffd700, #ffa500);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: 700;
+            font-size: 1.1em;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+
+        .rank-1 {
+            background: linear-gradient(135deg, #ffd700, #ffa500);
+        }
+        
+        .rank-2 {
+            background: linear-gradient(135deg, #C0C0C0, #A9A9A9);
+        }
+        
+        .rank-3 {
+            background: linear-gradient(135deg, #CD7F32, #8B4513);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-item {
+            padding: 12px;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.06);
+            transition: all 0.2s ease;
+            border: 1px solid rgba(0, 184, 163, 0.2);
+            text-align: center;
+        }
+
+        .stat-item:hover {
+            background-color: rgba(0, 184, 163, 0.12);
+            border-color: rgba(0, 184, 163, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .stat-label {
+            font-size: 0.75em;
+            color: var(--leetcode-text);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 1.2em;
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .difficulty-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .difficulty {
+            text-align: center;
+            padding: 14px 12px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            font-weight: 600;
+        }
+
+        .difficulty:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .easy { 
+            background-color: rgba(0, 184, 163, 0.15);
+            border-color: var(--leetcode-green);
+        }
+
+        .easy:hover {
+            background-color: rgba(0, 184, 163, 0.25);
+        }
+
+        .medium { 
+            background-color: rgba(255, 192, 30, 0.15);
+            border-color: var(--leetcode-yellow);
+        }
+
+        .medium:hover {
+            background-color: rgba(255, 192, 30, 0.25);
+        }
+
+        .hard { 
+            background-color: rgba(255, 55, 95, 0.15);
+            border-color: var(--leetcode-red);
+        }
+
+        .hard:hover {
+            background-color: rgba(255, 55, 95, 0.25);
+        }
+
+        .loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(40, 40, 40, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--leetcode-text);
+            border-top: 4px solid var(--leetcode-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            color: var(--leetcode-red);
+            text-align: center;
+            padding: 10px;
+        }
+
+        .recent-submissions {
+            margin-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 16px;
+            overflow-y: auto;
+            max-height: 150px;
+        }
+
+        .submission-item {
+            padding: 10px 12px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.06);
+            font-size: 0.85em;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .submission-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: rgba(0, 184, 163, 0.3);
+            transform: translateX(3px);
+        }
+
+        .submission-title {
+            color: #fff;
+            margin-bottom: 6px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .submission-status {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .submission-datetime {
+            font-size: 0.75em;
+            color: var(--leetcode-text);
+            margin-top: 6px;
+            opacity: 0.8;
+        }
+
+        /* Custom scrollbar for submissions */
+        .recent-submissions::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .recent-submissions::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        .recent-submissions::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .recent-submissions::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .status-accepted {
+            background-color: rgba(0, 184, 163, 0.2);
+            color: var(--leetcode-green);
+            border: 1px solid var(--leetcode-green);
+        }
+
+        .status-error {
+            background-color: rgba(255, 55, 95, 0.2);
+            color: var(--leetcode-red);
+            border: 1px solid var(--leetcode-red);
+        }
+
+        @media (max-width: 640px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .profile-header h2 {
+                font-size: 1.1em;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .difficulty-stats {
+                gap: 10px;
+                margin-top: 16px;
+            }
+
+            .difficulty {
+                padding: 12px 8px;
+            }
+
+            .stat-label {
+                font-size: 0.7em;
+            }
+
+            .stat-value {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>LeetCode Champions Board</h1>
+        </div>
+        <div class="dashboard" id="dashboard">
+            <!-- Profile cards will be inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // Add your LeetCode usernames here
+        const USERS = [
+            { username: 'HQ4umhXFKC', displayName: 'Tejas' },
+            { username: 'rahulilk100', displayName: 'Rahul' },
+            { username: '1455', displayName: 'Nikhil' },
+            { username: 'Rushi1705', displayName: 'Rushi' },
+            { username: 'SarthakDengale', displayName: 'Sarthak' },
+            { username: 'coolbhagz', displayName: 'CoolBhagz' },
+            { username: 'Prajwal_D17', displayName: 'Prajwal' }
+        ];
+
+        function createProfileCard(user) {
+            const card = document.createElement('div');
+            card.className = 'profile-card';
+            card.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                </div>
+                <div class="profile-header">
+                    <h2><a href="https://leetcode.com/${user.username}" target="_blank">${user.displayName}</a></h2>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Total Solved</div>
+                        <div class="stat-value" id="${user.username}-total">-</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Ranking</div>
+                        <div class="stat-value" id="${user.username}-ranking">-</div>
+                    </div>
+                </div>
+                <div class="difficulty-stats">
+                    <div class="difficulty easy">
+                        <div class="stat-label">Easy</div>
+                        <div class="stat-value" id="${user.username}-easy">-</div>
+                    </div>
+                    <div class="difficulty medium">
+                        <div class="stat-label">Medium</div>
+                        <div class="stat-value" id="${user.username}-medium">-</div>
+                    </div>
+                    <div class="difficulty hard">
+                        <div class="stat-label">Hard</div>
+                        <div class="stat-value" id="${user.username}-hard">-</div>
+                    </div>
+                </div>
+                <div class="recent-submissions" id="${user.username}-submissions">
+                    <div class="stat-label">Recent Submissions</div>
+                </div>
+            `;
+            return card;
+        }
+
+        function displayRecentSubmissions(username, submissions) {
+            const container = document.getElementById(`${username}-submissions`);
+            const recentThree = submissions.slice(0, 3);
+            
+            recentThree.forEach(submission => {
+                const submissionEl = document.createElement('div');
+                submissionEl.className = 'submission-item';
+                const statusClass = submission.statusDisplay === 'Accepted' ? 'status-accepted' : 'status-error';
+                const date = new Date(submission.timestamp * 1000);
+                const formattedDate = date.toLocaleString();
+                
+                submissionEl.innerHTML = `
+                    <div class="submission-title">${submission.title}</div>
+                    <span class="submission-status ${statusClass}">${submission.statusDisplay}</span>
+                    <div class="submission-datetime">${formattedDate}</div>
+                `;
+                container.appendChild(submissionEl);
+            });
+        }
+
+        function getMaxStreak(submissionCalendar) {
+            if (!submissionCalendar) return 0;
+            return Math.max(...Object.values(submissionCalendar));
+        }
+
+        async function fetchUserStats(user) {
+            try {
+                // Fetch data from both APIs
+                const [newApiResponse, oldApiResponse] = await Promise.all([
+                    fetch(`https://leetcode-api-faisalshohag.vercel.app/${user.username}`),
+                    fetch(`https://leetcode-stats-api.herokuapp.com/${user.username}`)
+                ]);
+                
+                const newData = await newApiResponse.json();
+                const oldData = await oldApiResponse.json();
+                
+                // Combine data from both APIs
+                const data = {
+                    ...newData,
+                    acceptanceRate: oldData.status === 'success' ? oldData.acceptanceRate : 0
+                };
+                
+                document.getElementById(`${user.username}-total`).textContent = data.totalSolved;
+                document.getElementById(`${user.username}-acceptance`).textContent = `${acceptanceRate}%`;
+                document.getElementById(`${user.username}-ranking`).textContent = data.ranking.toLocaleString();
+                document.getElementById(`${user.username}-easy`).textContent = data.easySolved;
+                document.getElementById(`${user.username}-medium`).textContent = data.mediumSolved;
+                document.getElementById(`${user.username}-hard`).textContent = data.hardSolved;
+                
+                // Display recent submissions
+                if (data.recentSubmissions) {
+                    displayRecentSubmissions(user.username, data.recentSubmissions);
+                }
+            } catch (error) {
+                const card = document.querySelector(`[data-username="${user.username}"]`);
+                card.innerHTML = `<div class="error">Failed to load data for ${user.displayName}</div>`;
+            } finally {
+                const card = document.querySelector(`[data-username="${user.username}"]`);
+                const loading = card.querySelector('.loading');
+                if (loading) {
+                    loading.remove();
+                }
+            }
+        }
+
+        function initializeDashboard() {
+            const dashboard = document.getElementById('dashboard');
+            USERS.forEach(user => {
+                const card = createProfileCard(user);
+                card.setAttribute('data-username', user.username);
+                dashboard.appendChild(card);
+                fetchUserStats(user);
+            });
+        }
+
+        // Global variable to store user data
+        let userData = [];
+
+        async function fetchAllUserData() {
+            const promises = USERS.map(async user => {
+                try {
+                    const response = await fetch(`https://leetcode-api-faisalshohag.vercel.app/${user.username}`);
+                    const data = await response.json();
+                    return {
+                        ...user,
+                        data: data
+                    };
+                } catch (error) {
+                    console.error(`Error fetching data for ${user.username}:`, error);
+                    return {
+                        ...user,
+                        data: null
+                    };
+                }
+            });
+
+            userData = await Promise.all(promises);
+            // Sort users by total solved problems
+            userData.sort((a, b) => {
+                if (!a.data) return 1;
+                if (!b.data) return -1;
+                return b.data.totalSolved - a.data.totalSolved;
+            });
+
+            // Clear and rebuild dashboard with sorted data
+            const dashboard = document.getElementById('dashboard');
+            dashboard.innerHTML = '';
+            userData.forEach((user, index) => {
+                const card = createProfileCard(user);
+                card.setAttribute('data-username', user.username);
+                dashboard.appendChild(card);
+                if (user.data) {
+                    updateCardWithData(user, index + 1);
+                }
+            });
+        }
+
+        function createProfileCard(user) {
+            const card = document.createElement('div');
+            card.className = 'profile-card';
+            card.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                </div>
+                <div class="profile-header">
+                    <h2><a href="https://leetcode.com/${user.username}" target="_blank">${user.displayName}</a></h2>
+                    <div class="rank-badge rank-${user.rank <= 3 ? user.rank : ''}">#${user.rank || '-'}</div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Total Solved</div>
+                        <div class="stat-value" id="${user.username}-total">-</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Ranking</div>
+                        <div class="stat-value" id="${user.username}-ranking">-</div>
+                    </div>
+                </div>
+                <div class="difficulty-stats">
+                    <div class="difficulty easy">
+                        <div class="stat-label">Easy</div>
+                        <div class="stat-value" id="${user.username}-easy">-</div>
+                    </div>
+                    <div class="difficulty medium">
+                        <div class="stat-label">Medium</div>
+                        <div class="stat-value" id="${user.username}-medium">-</div>
+                    </div>
+                    <div class="difficulty hard">
+                        <div class="stat-label">Hard</div>
+                        <div class="stat-value" id="${user.username}-hard">-</div>
+                    </div>
+                </div>
+                <div class="recent-submissions" id="${user.username}-submissions">
+                    <div class="stat-label">Recent Submissions</div>
+                </div>
+            `;
+            return card;
+        }
+
+        function updateCardWithData(user, rank) {
+            const data = user.data;
+            if (!data) return;
+
+            document.getElementById(`${user.username}-total`).textContent = data.totalSolved;
+            document.getElementById(`${user.username}-ranking`).textContent = data.ranking.toLocaleString();
+            document.getElementById(`${user.username}-easy`).textContent = data.easySolved;
+            document.getElementById(`${user.username}-medium`).textContent = data.mediumSolved;
+            document.getElementById(`${user.username}-hard`).textContent = data.hardSolved;
+
+            // Update rank badge
+            const card = document.querySelector(`[data-username="${user.username}"]`);
+            const rankBadge = card.querySelector('.rank-badge');
+            rankBadge.textContent = `#${rank}`;
+            rankBadge.className = `rank-badge ${rank <= 3 ? 'rank-' + rank : ''}`;
+
+            // Display recent submissions
+            if (data.recentSubmissions) {
+                displayRecentSubmissions(user.username, data.recentSubmissions);
+            }
+
+            // Remove loading state
+            const loading = card.querySelector('.loading');
+            if (loading) loading.remove();
+        }
+
+        // Initialize the dashboard when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchAllUserData();
+        });
+    </script>
+</body>
+</html>
