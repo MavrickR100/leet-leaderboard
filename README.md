@@ -1,10 +1,9 @@
 # Friends LeetCode Dashboard 🚀
 
-A responsive **LeetCode Champions Board** that displays and ranks my friends based on their LeetCode problem-solving activity.  
-The dashboard helps keep us motivated and competitive while practicing DSA.
+A responsive leaderboard application that tracks and ranks LeetCode problem-solving activity among peers to foster competitive learning and DSA practice.
 
-🔗 **Live Demo:**  
-https://mavrickr100.github.io/friends-leetcode-dashboard/
+🔗 **Live Demo:**  [
+https://mavrickr100.github.io/friends-leetcode-dashboard/](https://mavrickr100.github.io/leet-leaderboard/)
 
 ---
 
